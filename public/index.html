@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rubenpoo — Ouder-dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1013;
+    --bg-soft: #15171b;
+    --panel: #1b1e23;
+    --panel-2: #21252b;
+    --border: #2a2e35;
+    --yellow: #f5c518;
+    --yellow-soft: #4a3f14;
+    --blue: #3b8eff;
+    --blue-soft: #16233d;
+    --text: #f4f5f7;
+    --muted: #8b929e;
+    --error: #ff6b6b;
+    --error-bg: #3a1a1e;
+    --success-bg: #1c3324;
+    --green: #33c481;
+    --green-soft: #123526;
+    --input-bg: #0f1114;
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.35);
+    --body-bg: radial-gradient(1200px 600px at 20% -10%, #17203a 0%, #0e1013 45%);
+    --header-bg: rgba(14,16,19,0.85);
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+  [data-theme="light"] {
+    --bg: #eef1f6;
+    --bg-soft: #f6f8fb;
+    --panel: #ffffff;
+    --panel-2: #f5f7fb;
+    --border: #e6e9f0;
+    --yellow-soft: #fdf3d3;
+    --blue-soft: #e6f0ff;
+    --text: #1c2029;
+    --muted: #6b7280;
+    --error: #d92d3a;
+    --error-bg: #fdeaec;
+    --success-bg: #e4f8ee;
+    --green-soft: #dff6ea;
+    --input-bg: #f4f6f9;
+    --card-shadow: 0 2px 18px rgba(30,41,59,0.07);
+    --body-bg: #eef1f6;
+    --header-bg: rgba(255,255,255,0.85);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--body-bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 14px 28px;
+    background: var(--header-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-mark {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--yellow), #e0a90f);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; box-shadow: 0 2px 10px rgba(245,197,24,0.35);
+  }
+  .brand-text h1 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: 0.2px; }
+  .brand-text span { font-size: 11px; color: var(--muted); }
+  #logoutArea { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--muted); }
+  #logoutArea .link { color: var(--text); font-weight: 600; }
+  .header-actions { display: flex; align-items: center; gap: 14px; }
+  #themeToggle {
+    width: 36px; height: 36px; padding: 0; margin: 0;
+    border-radius: 50%; background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text); display: flex; align-items: center; justify-content: center;
+    font-size: 16px; box-shadow: none;
+  }
+  #themeToggle:hover { filter: none; border-color: var(--blue); }
+
+  /* ---------- Layout ---------- */
+  .container { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+  .container.narrow { max-width: 440px; padding-top: 90px; }
+
+  .panel {
+    background: linear-gradient(180deg, var(--panel), var(--bg-soft));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+  }
+  .section-title {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--text); font-size: 15px; font-weight: 700;
+    margin: 0 0 4px;
+  }
+  .section-title .icon {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--blue-soft); color: var(--blue);
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+    flex-shrink: 0;
+  }
+  .section-title .icon.icon-red { background: var(--error-bg); color: var(--error); }
+  .section-title .icon.icon-green { background: var(--green-soft); color: var(--green); }
+  .section-title .icon.icon-yellow { background: var(--yellow-soft); color: #b8860b; }
+  [data-theme="light"] .section-title .icon.icon-yellow { color: #9a7209; }
+  .section-sub { color: var(--muted); font-size: 12.5px; margin: 4px 0 16px; line-height: 1.5; }
+
+  h2 { color: var(--text); font-size: 16px; margin: 0 0 4px; font-weight: 700; }
+
+  label { display: block; color: var(--muted); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.4px; margin: 14px 0 6px; }
+  input, select {
+    width: 100%;
+    padding: 11px 12px;
+    background: var(--input-bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(59,142,255,0.18);
+  }
+  input::placeholder { color: #565c66; }
+
+  button {
+    background: var(--yellow);
+    color: #1a1608;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 11px 18px;
+    font-weight: 700;
+    font-size: 13.5px;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: filter 0.15s ease, transform 0.05s ease;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:active { transform: scale(0.98); }
+  button.secondary { background: var(--blue); color: white; }
+  button.danger { background: #d92d3a; color: white; }
+  button.ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+  button.block { width: 100%; padding: 13px; font-size: 14px; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+
+  .row { display: flex; gap: 10px; align-items: flex-end; }
+  .row > * { flex: 1; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+  .checkbox-row input { width: auto; }
+  .checkbox-row label { margin: 0; text-transform: none; font-size: 13px; color: var(--text); font-weight: 500; }
+
+  .error, .success {
+    font-size: 13px; margin-top: 12px; padding: 10px 12px; border-radius: var(--radius-sm);
+  }
+  .error { color: #ff9a9a; background: var(--error-bg); }
+  .success { color: #8fe3bc; background: var(--success-bg); }
+
+  a.link { color: var(--blue); cursor: pointer; text-decoration: none; font-size: 13px; font-weight: 600; }
+  a.link:hover { text-decoration: underline; }
+  .hidden { display: none !important; }
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  /* ---------- Login ---------- */
+  .login-brand { text-align: center; margin-bottom: 26px; }
+  .login-brand .brand-mark { width: 52px; height: 52px; margin: 0 auto 14px; font-size: 24px; border-radius: 14px; }
+  .login-brand h1 { font-size: 21px; margin: 0 0 4px; font-weight: 800; }
+  .login-brand p { color: var(--muted); font-size: 13px; margin: 0; }
+
+  /* ---------- Children grid ---------- */
+  .children-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 8px; }
+  .child-card {
+    background: var(--panel-2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.1s ease;
+  }
+  .child-card:hover { border-color: var(--blue); transform: translateY(-2px); }
+  .child-card .top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .child-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), #1b5fd1);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: white;
+  }
+  .child-card .name { font-size: 16px; font-weight: 700; margin: 0 0 2px; }
+  .child-card .meta { color: var(--muted); font-size: 12px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--blue-soft); color: var(--blue);
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+    padding: 3px 9px; border-radius: 20px;
+  }
+  .badge.locked { background: var(--error-bg); color: var(--error); }
+
+  .progress-track { height: 7px; background: var(--input-bg); border-radius: 20px; overflow: hidden; margin-top: 10px; }
+  .progress-fill { height: 100%; border-radius: 20px; background: var(--green); transition: width 0.3s ease; }
+  .progress-fill.warn { background: var(--yellow); }
+  .progress-fill.danger { background: var(--error); }
+  .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+  .add-child-row { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+  .add-child-row input { flex: 1; }
+  .add-child-row button { margin-top: 0; white-space: nowrap; }
+
+  /* ---------- Tijd-dial ---------- */
+  .dial-wrap {
+    position: relative;
+    width: 220px; height: 220px;
+    margin: 6px auto 4px;
+    touch-action: none;
+    -webkit-user-select: none; user-select: none;
+  }
+  .dial-track { fill: none; stroke: var(--input-bg); stroke-width: 14; }
+  .dial-arc {
+    fill: none; stroke: var(--blue); stroke-width: 14; stroke-linecap: round;
+    transform: rotate(-90deg); transform-origin: 110px 110px;
+    transition: stroke-dashoffset 0.05s linear;
+  }
+  .dial-handle {
+    fill: var(--panel); stroke: var(--blue); stroke-width: 4;
+    cursor: grab; filter: drop-shadow(0 2px 6px rgba(59,142,255,0.45));
+  }
+  .dial-handle:active { cursor: grabbing; }
+  .dial-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .dial-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+  .dial-time { font-size: 34px; font-weight: 800; color: var(--text); margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+  .dial-subrow { display: flex; gap: 34px; }
+  .dial-sublabel { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .dial-adjust { display: flex; justify-content: center; gap: 10px; margin-bottom: 4px; }
+  button.dial-btn { margin-top: 0; padding: 8px 16px; font-size: 12.5px; }
+
+  /* ---------- Pairing code ---------- */
+  .pairing-code-box {
+    text-align: center;
+    background: var(--panel-2);
+    border: 1.5px dashed var(--blue);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 14px;
+  }
+  .pairing-code {
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--yellow);
+    letter-spacing: 6px;
+    margin: 4px 0;
+  }
+  .pairing-code-box .expiry { color: var(--muted); font-size: 12px; }
+
+  .device-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .device-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px;
+  }
+  .device-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .device-item .dot.locked { background: var(--error); }
+  .device-item .device-info { flex: 1; min-width: 0; }
+  .device-item button { margin-top: 0; padding: 6px 12px; font-size: 11.5px; flex-shrink: 0; }
+  .empty-note { color: var(--muted); font-size: 13px; padding: 10px 0; }
+
+  /* ---------- Usage list ---------- */
+  .usage-summary { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+  .usage-list { display: flex; flex-direction: column; gap: 6px; }
+  .usage-row {
+    display: flex; justify-content: space-between;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 9px 12px; font-size: 13px;
+  }
+  .usage-row .app { font-weight: 600; }
+  .usage-row .device { color: var(--muted); font-size: 11.5px; margin-left: 6px; }
+  .usage-row .minutes { color: var(--blue); font-weight: 700; }
+
+  .cat-overview { margin-top: 14px; background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-size: 13px; line-height: 1.7; }
+  .cat-overview strong { color: var(--text); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 18px; }
+
+  @media (max-width: 560px) {
+    .container { padding: 24px 16px 60px; }
+    .panel { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">⏱</div>
+    <div class="brand-text">
+      <h1>Rubenpoo</h1>
+      <span>Ouder-dashboard</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button id="themeToggle" onclick="toggleTheme()" title="Licht/donker thema">🌙</button>
+    <div id="logoutArea" class="hidden"><a class="link" onclick="logout()">Uitloggen</a></div>
+  </div>
+</header>
+
+<!-- Login/registreren -->
+<div id="authPanel" class="container narrow">
+  <div class="login-brand">
+    <div class="brand-mark">⏱</div>
+    <span style="display:block; color:var(--muted); font-size:12px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; margin-bottom:6px;">Rubenpoo</span>
+    <h1 id="authTitle">Welkom terug</h1>
+    <p id="authSubtitle">Log in om de schermtijd van je kinderen te beheren.</p>
+  </div>
+  <div class="panel">
+    <label>E-mailadres</label>
+    <input id="authEmail" type="email" placeholder="jij@voorbeeld.nl">
+    <label>Wachtwoord</label>
+    <input id="authPassword" type="password" placeholder="••••••••">
+    <button class="block" onclick="doAuth()">Inloggen</button>
+    <div style="text-align:center; margin-top:16px;">
+      <a class="link" onclick="toggleAuthMode()" id="authToggle">Nog geen account? Registreren</a>
+    </div>
+    <div id="authError" class="error hidden"></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Kinderenlijst -->
+  <div id="childrenPanel" class="hidden">
+    <div class="panel">
+      <h2>Jouw kinderen</h2>
+      <p class="section-sub">Klik op een kind om de instellingen te beheren.</p>
+      <div id="childrenList" class="children-grid"></div>
+      <div class="divider"></div>
+      <label>Nieuw kind toevoegen</label>
+      <div class="add-child-row">
+        <input id="newChildName" placeholder="Naam">
+        <button class="ghost" type="button" onclick="toggleNewChildConfig()" style="margin:0; padding:11px 14px;" id="newChildConfigToggle">⚙️</button>
+        <button onclick="addChild()">Toevoegen</button>
+      </div>
+      <div id="newChildConfig" class="hidden" style="margin-top:12px;">
+        <p class="section-sub" style="margin-top:0;">Optioneel: stel meteen een startconfiguratie in (later altijd aan te passen).</p>
+        <label>Dagelijkse limiet (minuten)</label>
+        <input id="newChildLimit" type="number" min="0" value="60">
+        <div class="row">
+          <div>
+            <label>Bedtijd vanaf</label>
+            <input id="newChildWindowStart" type="time" value="00:00">
+          </div>
+          <div>
+            <label>Bedtijd tot</label>
+            <input id="newChildWindowEnd" type="time" value="23:59">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail van een kind -->
+  <div id="detailPanel" class="hidden">
+    <a class="link back-link" onclick="backToList()">← Terug naar kinderen</a>
+
+    <div class="panel" style="display:flex; align-items:center; gap:14px;">
+      <div class="child-avatar" id="detailAvatar" style="width:48px;height:48px;font-size:18px;"></div>
+      <div>
+        <h2 id="detailName" style="font-size:20px;"></h2>
+        <span class="section-sub" style="margin:0;">Beheer limieten, bedtijd, categorieën en apparaten</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title"><span class="icon icon-green">⏱</span>Dagelijkse schermtijdlimiet</div>
+      <p class="section-sub">Sleep de wijzer rond om het aantal uren en minuten per dag in te stellen.</p>
+
+      <div class="dial-wrap" id="dialWrap">
+        <svg id="dialSvg" viewBox="0 0 220 220" width="220" height="220">
+          <circle class="dial-track" cx="110" cy="110" r="92" />
+          <circle id="dialArc" class="dial-arc" cx="110" cy="110" r="92" />
+          <circle id="dialHandle" class="dial-handle" cx="110" cy="18" r="13" />
+        </svg>
+        <div class="dial-center">
+          <span class="dial-label">Dagelijkse limiet</span>
+          <span class="dial-time" id="dialTimeText">1:00</span>
+          <div class="dial-subrow">
+            <span class="dial-sublabel">Uren</span>
+            <span class="dial-sublabel">Min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dial-adjust">
+        <button class="ghost dial-btn" type="button" onclick="nudgeDial(-15)">−15 min</button>
+        <button class="ghost dial-btn" type="button" onclick="nudgeDial(15)">+15 min</button>
+      </div>
+
+      <input id="dailyLimit" type="number" min="0" class="hidden">
+      <button class="block" onclick="saveLimit()">Limiet opslaan</button>
+
+      <div class="section-title" style="margin-top:26px;"><span class="icon">🌙</span>Bedtijdvenster</div>
+      <p class="section-sub">Buiten deze uren wordt het apparaat automatisch vergrendeld.</p>
+      <div class="row">
+        <div>
+          <label>Vanaf</label>
+          <input id="windowStart" type="time">
+        </div>
+        <div>
+          <label>Tot</label>
+          <input id="windowEnd" type="time">
+        </div>
+        <button onclick="saveLimit()">Opslaan</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title"><span class="icon icon-red">🔒</span>Direct vergrendelen</div>
+      <p class="section-sub">Vergrendelt in één keer alle gekoppelde apparaten van dit kind, tot morgen. Wil je maar 1 apparaat vergrendelen? Gebruik dan de knop bij dat apparaat hieronder. Bellen blijft altijd mogelijk.</p>
+      <button id="lockButton" class="danger block" onclick="toggleLock()">Alles vergrendelen tot morgen</button>
+    </div>
+
+    <div class="panel">
+      <div class="section-title"><span class="icon icon-green">📱</span>Apparaten</div>
+      <p class="section-sub">Genereer per apparaat (telefoon, pc, ...) een eigen koppelcode. Codes zijn 10 minuten geldig en werken los van elkaar — zo koppel je meerdere apparaten tegelijk. Elk apparaat kan ook los vergrendeld worden.</p>
+      <button onclick="generateCode()">Nieuwe koppelcode genereren</button>
+      <div id="pairingCodeBox" class="pairing-code-box hidden">
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px;">Koppelcode</div>
+        <div class="pairing-code" id="pairingCodeText"></div>
+        <div class="expiry" id="pairingCodeExpiry"></div>
+      </div>
+      <div id="deviceList" class="device-list"></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title"><span class="icon icon-yellow">🗂</span>Categorieën &amp; app-instellingen</div>
+      <p class="section-sub">Ken een categorie toe aan een app, stel een aparte limiet per categorie in, of markeer een app als "altijd toegestaan" (telt niet mee voor de limiet, maar blijft zichtbaar voor jou).</p>
+
+      <div class="row">
+        <div>
+          <label>App-naam</label>
+          <input id="catAppName" placeholder="bv. Roblox, com.instagram.android">
+        </div>
+        <div>
+          <label>Categorie</label>
+          <select id="catCategory">
+            <option value="games">games</option>
+            <option value="social">social</option>
+            <option value="video">video</option>
+            <option value="education">education</option>
+            <option value="other">other</option>
+          </select>
+        </div>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="catUnlimited">
+        <label for="catUnlimited">Altijd toegestaan (telt niet mee voor de limiet)</label>
+      </div>
+      <button onclick="saveAppCategory()">App opslaan</button>
+
+      <div class="divider"></div>
+
+      <label>Limiet per categorie (optioneel)</label>
+      <div class="row">
+        <select id="categoryLimitSelect">
+          <option value="games">games</option>
+          <option value="social">social</option>
+          <option value="video">video</option>
+          <option value="education">education</option>
+          <option value="other">other</option>
+        </select>
+        <input id="categoryLimitMinutes" type="number" min="0" placeholder="Minuten/dag">
+        <button onclick="saveCategoryLimit()">Opslaan</button>
+      </div>
+
+      <div id="categoryOverview" class="cat-overview"></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title"><span class="icon icon-red">🔑</span>Noodcode (offline ontgrendelen)</div>
+      <p class="section-sub">Stel een PIN in waarmee jij het kind-apparaat kunt ontgrendelen zonder internet, via het kleine "Ouder-toegang"-linkje op het blokkeerscherm. Het kind ziet deze PIN nergens, en hij wordt niet in platte tekst opgeslagen.</p>
+      <div class="row">
+        <input id="emergencyPin" type="password" inputmode="numeric" placeholder="PIN (minstens 4 cijfers)">
+        <button onclick="saveEmergencyCode()">Opslaan</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-title"><span class="icon icon-green">📊</span>Verbruik vandaag</div>
+      <div id="usageBox"></div>
+    </div>
+
+    <div id="detailMessage" class="success hidden"></div>
+  </div>
+
+</div>
+
+<script>
+let token = localStorage.getItem('schermtijd_token') || null;
+// Automatisch het juiste adres: dit dashboard wordt door dezelfde server geserveerd als de API,
+// dus werkt dit voor iedereen die het bezoekt (localhost, LAN-ip, eigen domein, ...) zonder dat er
+// een server-adres handmatig ingevuld hoeft te worden — belangrijk zodra meerdere gezinnen dit
+// dashboard via dezelfde server gebruiken.
+const apiUrl = window.location.origin + '/api';
+let isRegisterMode = false;
+let currentChild = null;
+let children = [];
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeToggle').textContent = theme === 'light' ? '☀️' : '🌙';
+  localStorage.setItem('schermtijd_theme', theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'light' ? 'dark' : 'light');
+}
+
+applyTheme(localStorage.getItem('schermtijd_theme') || 'light');
+
+function api(path, opts = {}) {
+  const headers = opts.headers || {};
+  headers['Content-Type'] = 'application/json';
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  return fetch(apiUrl.replace(/\/$/, '') + path, { ...opts, headers })
+    .then(async (resp) => {
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.error || 'Onbekende fout');
+      return data;
+    });
+}
+
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function initials(name) {
+  return name.trim().split(/\s+/).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+}
+
+function toggleAuthMode() {
+  isRegisterMode = !isRegisterMode;
+  document.getElementById('authTitle').textContent = isRegisterMode ? 'Account aanmaken' : 'Welkom terug';
+  document.getElementById('authSubtitle').textContent = isRegisterMode
+    ? 'Maak een account aan om te beginnen.'
+    : 'Log in om de schermtijd van je kinderen te beheren.';
+  document.getElementById('authToggle').textContent = isRegisterMode ? 'Heb je al een account? Inloggen' : 'Nog geen account? Registreren';
+}
+
+async function doAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errorBox = document.getElementById('authError');
+  errorBox.classList.add('hidden');
+  try {
+    const data = await api(isRegisterMode ? '/auth/register' : '/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    token = data.token;
+    localStorage.setItem('schermtijd_token', token);
+    showChildren();
+  } catch (e) {
+    errorBox.textContent = e.message;
+    errorBox.classList.remove('hidden');
+  }
+}
+
+function logout() {
+  token = null;
+  localStorage.removeItem('schermtijd_token');
+  document.getElementById('authPanel').classList.remove('hidden');
+  document.getElementById('childrenPanel').classList.add('hidden');
+  document.getElementById('detailPanel').classList.add('hidden');
+  document.getElementById('logoutArea').classList.add('hidden');
+}
+
+async function showChildren() {
+  document.getElementById('authPanel').classList.add('hidden');
+  document.getElementById('detailPanel').classList.add('hidden');
+  document.getElementById('childrenPanel').classList.remove('hidden');
+  document.getElementById('logoutArea').classList.remove('hidden');
+  await reloadChildren();
+}
+
+function progressClass(pct) {
+  if (pct >= 90) return 'danger';
+  if (pct >= 70) return 'warn';
+  return '';
+}
+
+async function reloadChildren() {
+  children = await api('/children');
+  const list = document.getElementById('childrenList');
+  list.innerHTML = '';
+
+  for (const c of children) {
+    const limit = c.rule ? c.rule.dailyLimitMinutes : 60;
+    const locked = c.rule && c.rule.locked;
+
+    const div = document.createElement('div');
+    div.className = 'child-card';
+    div.onclick = () => openChild(c.id);
+
+    let usedMinutes = 0;
+    try {
+      const usage = await api(`/children/${c.id}/usage`);
+      usedMinutes = usage.totalMinutes;
+    } catch (e) { /* stil falen */ }
+    const pct = limit > 0 ? Math.min(100, Math.round((usedMinutes / limit) * 100)) : 0;
+
+    div.innerHTML = `
+      <div class="top-row">
+        <div class="child-avatar">${initials(c.name)}</div>
+        ${locked ? '<span class="badge locked">🔒 Vergrendeld</span>' : `<span class="badge">${c.devices.length} apparaat${c.devices.length === 1 ? '' : 'en'}</span>`}
+      </div>
+      <div class="name">${c.name}</div>
+      <div class="meta">${usedMinutes} van ${limit} min gebruikt</div>
+      <div class="progress-track"><div class="progress-fill ${progressClass(pct)}" style="width:${pct}%"></div></div>
+      <div class="progress-label"><span>${pct}%</span><span>${Math.max(0, limit - usedMinutes)} min over</span></div>
+    `;
+    list.appendChild(div);
+  }
+}
+
+function toggleNewChildConfig() {
+  document.getElementById('newChildConfig').classList.toggle('hidden');
+}
+
+async function addChild() {
+  const name = document.getElementById('newChildName').value.trim();
+  if (!name) return;
+  const dailyLimitMinutes = parseInt(document.getElementById('newChildLimit').value, 10) || 60;
+  const windowStart = document.getElementById('newChildWindowStart').value || '00:00';
+  const windowEnd = document.getElementById('newChildWindowEnd').value || '23:59';
+  await api('/children', { method: 'POST', body: JSON.stringify({ name, dailyLimitMinutes, windowStart, windowEnd }) });
+  document.getElementById('newChildName').value = '';
+  document.getElementById('newChildConfig').classList.add('hidden');
+  await reloadChildren();
+}
+
+function backToList() {
+  document.getElementById('detailPanel').classList.add('hidden');
+  document.getElementById('childrenPanel').classList.remove('hidden');
+  reloadChildren();
+}
+
+function showMessage(text, isError = false) {
+  const box = document.getElementById('detailMessage');
+  box.textContent = text;
+  box.className = isError ? 'error' : 'success';
+  box.classList.remove('hidden');
+  setTimeout(() => box.classList.add('hidden'), 4000);
+}
+
+async function openChild(id) {
+  currentChild = children.find((c) => c.id === id);
+  document.getElementById('childrenPanel').classList.add('hidden');
+  document.getElementById('detailPanel').classList.remove('hidden');
+  document.getElementById('detailName').textContent = currentChild.name;
+  document.getElementById('detailAvatar').textContent = initials(currentChild.name);
+  setDialMinutes(currentChild.rule ? currentChild.rule.dailyLimitMinutes : 60);
+  document.getElementById('windowStart').value = (currentChild.rule && currentChild.rule.windowStart) || '00:00';
+  document.getElementById('windowEnd').value = (currentChild.rule && currentChild.rule.windowEnd) || '23:59';
+  updateLockButton();
+  renderDevices();
+  document.getElementById('pairingCodeBox').classList.add('hidden');
+  document.getElementById('detailMessage').classList.add('hidden');
+  await loadCategories();
+  await loadUsage();
+}
+
+// ---------- Tijd-dial (dagelijkse limiet) ----------
+const DIAL_R = 92;
+const DIAL_CIRC = 2 * Math.PI * DIAL_R;
+const DIAL_MAX_MIN = 24 * 60;
+let dialMinutes = 60;
+let dialDragging = false;
+
+function setDialMinutes(minutes) {
+  dialMinutes = Math.max(0, Math.min(DIAL_MAX_MIN, Math.round(minutes / 5) * 5));
+  document.getElementById('dailyLimit').value = dialMinutes;
+
+  const frac = dialMinutes / DIAL_MAX_MIN;
+  const angle = frac * 2 * Math.PI;
+
+  const arc = document.getElementById('dialArc');
+  arc.setAttribute('stroke-dasharray', DIAL_CIRC);
+  arc.setAttribute('stroke-dashoffset', DIAL_CIRC * (1 - frac));
+
+  const hx = 110 + DIAL_R * Math.sin(angle);
+  const hy = 110 - DIAL_R * Math.cos(angle);
+  document.getElementById('dialHandle').setAttribute('cx', hx);
+  document.getElementById('dialHandle').setAttribute('cy', hy);
+
+  const hours = Math.floor(dialMinutes / 60);
+  const mins = dialMinutes % 60;
+  document.getElementById('dialTimeText').textContent = `${hours}:${String(mins).padStart(2, '0')}`;
+}
+
+function nudgeDial(delta) {
+  setDialMinutes(dialMinutes + delta);
+}
+
+function angleToMinutesFromEvent(evt) {
+  const svg = document.getElementById('dialSvg');
+  const rect = svg.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const dx = evt.clientX - cx;
+  const dy = evt.clientY - cy;
+  let angle = Math.atan2(dx, -dy);
+  if (angle < 0) angle += 2 * Math.PI;
+  return Math.round((angle / (2 * Math.PI)) * DIAL_MAX_MIN);
+}
+
+function setupDial() {
+  const svg = document.getElementById('dialSvg');
+  if (!svg) return;
+
+  const onMove = (evt) => {
+    if (!dialDragging) return;
+    setDialMinutes(angleToMinutesFromEvent(evt));
+  };
+  const onUp = () => { dialDragging = false; };
+
+  svg.addEventListener('pointerdown', (evt) => {
+    dialDragging = true;
+    svg.setPointerCapture(evt.pointerId);
+    setDialMinutes(angleToMinutesFromEvent(evt));
+  });
+  svg.addEventListener('pointermove', onMove);
+  svg.addEventListener('pointerup', onUp);
+  svg.addEventListener('pointercancel', onUp);
+}
+
+setupDial();
+
+function updateLockButton() {
+  const locked = currentChild.rule && currentChild.rule.locked;
+  const btn = document.getElementById('lockButton');
+  btn.textContent = locked ? '🔓 Alles ontgrendelen' : '🔒 Alles vergrendelen tot morgen';
+  btn.className = (locked ? 'secondary' : 'danger') + ' block';
+}
+
+function renderDevices() {
+  const box = document.getElementById('deviceList');
+  if (currentChild.devices.length === 0) {
+    box.innerHTML = '<div class="empty-note">Nog geen apparaten gekoppeld.</div>';
+    return;
+  }
+  box.innerHTML = currentChild.devices.map((d) => `
+    <div class="device-item">
+      <span class="dot ${d.locked ? 'locked' : ''}"></span>
+      <div class="device-info"><strong>${d.name}</strong><span style="color:var(--muted);"> — ${d.platform}</span></div>
+      <button class="ghost" onclick="toggleDeviceLock(${d.id}, ${!d.locked})">${d.locked ? 'Ontgrendel' : 'Vergrendel'}</button>
+    </div>
+  `).join('');
+}
+
+async function toggleDeviceLock(deviceId, newLocked) {
+  try {
+    await api(`/children/${currentChild.id}/devices/${deviceId}/lock`, {
+      method: 'PUT',
+      body: JSON.stringify({ locked: newLocked }),
+    });
+    const device = currentChild.devices.find((d) => d.id === deviceId);
+    if (device) device.locked = newLocked;
+    renderDevices();
+    showMessage(newLocked ? 'Apparaat vergrendeld.' : 'Apparaat ontgrendeld.');
+  } catch (e) {
+    showMessage(e.message, true);
+  }
+}
+
+async function saveLimit() {
+  const dailyLimitMinutes = parseInt(document.getElementById('dailyLimit').value, 10) || 0;
+  const windowStart = document.getElementById('windowStart').value;
+  const windowEnd = document.getElementById('windowEnd').value;
+  try {
+    const rule = await api(`/children/${currentChild.id}/rule`, {
+      method: 'PUT',
+      body: JSON.stringify({ dailyLimitMinutes, windowStart, windowEnd }),
+    });
+    currentChild.rule = { ...currentChild.rule, ...rule };
+    showMessage('Limiet en bedtijd opgeslagen.');
+  } catch (e) {
+    showMessage(e.message, true);
+  }
+}
+
+async function toggleLock() {
+  const newLocked = !(currentChild.rule && currentChild.rule.locked);
+  try {
+    await api(`/children/${currentChild.id}/lock`, { method: 'PUT', body: JSON.stringify({ locked: newLocked }) });
+    currentChild.rule.locked = newLocked;
+    updateLockButton();
+    showMessage(newLocked ? 'Alles vergrendeld tot morgen.' : 'Alles ontgrendeld.');
+  } catch (e) {
+    showMessage(e.message, true);
+  }
+}
+
+async function generateCode() {
+  try {
+    const result = await api(`/children/${currentChild.id}/pairing-code`, { method: 'POST' });
+    document.getElementById('pairingCodeText').textContent = result.code;
+    document.getElementById('pairingCodeExpiry').textContent = 'Geldig tot ' + new Date(result.expiresAt).toLocaleTimeString('nl-NL');
+    document.getElementById('pairingCodeBox').classList.remove('hidden');
+  } catch (e) {
+    showMessage(e.message, true);
+  }
+}
+
+async function loadCategories() {
+  try {
+    const data = await api(`/children/${currentChild.id}/categories`);
+    const box = document.getElementById('categoryOverview');
+    const appsText = data.appCategories.length
+      ? data.appCategories.map((a) => `${a.appName} → ${a.category}${a.unlimited ? ' <span style="color:var(--green);">(altijd toegestaan)</span>' : ''}`).join('<br>')
+      : '<span style="color:var(--muted);">Nog geen apps ingedeeld.</span>';
+    const limitsText = data.categoryLimits.length
+      ? data.categoryLimits.map((l) => `${l.category}: ${l.dailyLimitMinutes} min/dag`).join('<br>')
+      : '<span style="color:var(--muted);">Nog geen categorielimieten ingesteld.</span>';
+    box.innerHTML = `<strong>Apps</strong><br>${appsText}<br><br><strong>Categorielimieten</strong><br>${limitsText}`;
+  } catch (e) {
+    // stil falen, niet kritiek voor de rest van het scherm
+  }
+}
+
+async function saveAppCategory() {
+  const appName = document.getElementById('catAppName').value.trim();
+  const category = document.getElementById('catCategory').value;
+  const unlimited = document.getElementById('catUnlimited').checked;
+  if (!appName) return;
+  try {
+    await api(`/children/${currentChild.id}/app-category`, {
+      method: 'POST',
+      body: JSON.stringify({ appName, category, unlimited }),
+    });
+    document.getElementById('catAppName').value = '';
+    document.getElementById('catUnlimited').checked = false;
+    await loadCategories();
+    showMessage('App opgeslagen.');
+  } catch (e) {
+    showMessage(e.message, true);
+  }
+}
+
+async function saveCategoryLimit() {
+  const category = document.getElementById('categoryLimitSelect').value;
+  const dailyLimitMinutes = parseInt(document.getElementById('categoryLimitMinutes').value, 10);
+  if (isNaN(dailyLimitMinutes)) return;
+  try {
+    await api(`/children/${currentChild.id}/category-limit`, {
+      method: 'PUT',
+      body: JSON.stringify({ category, dailyLimitMinutes }),
+    });
+    await loadCategories();
+    showMessage('Categorielimiet opgeslagen.');
+  } catch (e) {
+    showMessage(e.message, true);
+  }
+}
+
+async function saveEmergencyCode() {
+  const pin = document.getElementById('emergencyPin').value;
+  if (pin.length < 4) { showMessage('Gebruik minstens 4 cijfers.', true); return; }
+  try {
+    const codeHash = await sha256Hex(pin);
+    await api(`/children/${currentChild.id}/emergency-code`, { method: 'PUT', body: JSON.stringify({ codeHash }) });
+    document.getElementById('emergencyPin').value = '';
+    showMessage('Noodcode opgeslagen.');
+  } catch (e) {
+    showMessage(e.message, true);
+  }
+}
+
+async function loadUsage() {
+  try {
+    const usage = await api(`/children/${currentChild.id}/usage`);
+    const box = document.getElementById('usageBox');
+    const pct = usage.dailyLimitMinutes > 0 ? Math.min(100, Math.round((usage.totalMinutes / usage.dailyLimitMinutes) * 100)) : 0;
+    const rows = usage.breakdown.length
+      ? usage.breakdown.map((r) => `<div class="usage-row"><span class="app">${r.appName}<span class="device">${r.deviceName}</span></span><span class="minutes">${r.minutes} min</span></div>`).join('')
+      : '<div class="empty-note">Nog geen verbruik vandaag.</div>';
+    box.innerHTML = `
+      <div class="usage-summary">${usage.totalMinutes} van ${usage.dailyLimitMinutes} minuten gebruikt (${usage.remainingMinutes} resterend)</div>
+      <div class="progress-track" style="margin-bottom:16px;"><div class="progress-fill ${progressClass(pct)}" style="width:${pct}%"></div></div>
+      <div class="usage-list">${rows}</div>
+    `;
+  } catch (e) {
+    // stil falen
+  }
+}
+
+// Automatisch inloggen als er al een token bekend is.
+if (token) {
+  showChildren().catch(() => logout());
+}
+</script>
+
+</body>
+</html>
