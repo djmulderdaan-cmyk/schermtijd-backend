@@ -52,6 +52,22 @@ function requireAuth(req, res, next) {
   }
 }
 
+// Voor de admin-tool ("Schermtijd Test"): een apart token met payload { admin: true } i.p.v. een
+// userId, zodat een gewoon ouder-token nooit toegang geeft tot admin-routes en andersom. Zie
+// routes/admin.js voor de login (die het admin-wachtwoord uit ADMIN_PASSWORD vergelijkt).
+function requireAdmin(req, res, next) {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Geen token meegegeven' });
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    if (payload.admin !== true) return res.status(403).json({ error: 'Geen adminrechten' });
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: 'Ongeldig of verlopen token' });
+  }
+}
+
 async function requireDeviceAuth(req, res, next) {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;

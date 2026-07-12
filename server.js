@@ -7,6 +7,7 @@ const { init } = require('./db');
 const authRoutes = require('./routes/auth');
 const childrenRoutes = require('./routes/children');
 const devicesRoutes = require('./routes/devices');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 // Nodig zodra dit achter een reverse proxy draait (bv. Render): anders ziet Express altijd het
@@ -21,6 +22,7 @@ app.get('/api/health', (req, res) => res.json({ ok: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/children', childrenRoutes);
 app.use('/api/devices', devicesRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Ouder-dashboard (webinterface): een statische pagina die de API aanroept.
 app.use(express.static(path.join(__dirname, 'public')));
