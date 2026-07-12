@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rubenpoo Test — Adminbeheer</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root {
+    --bg: #121417;
+    --panel: #1E2126;
+    --panel2: #262a31;
+    --panel3: #2f343c;
+    --border: #333944;
+    --text: #F2F2F2;
+    --text-dim: #9AA1AC;
+    --yellow: #F5C518;
+    --blue: #2E86FF;
+    --red: #FF6B6B;
+    --green: #4CAF50;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at top, #171a1f 0%, var(--bg) 55%);
+    background-attachment: fixed;
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(30, 33, 38, 0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
+  header .brand .logo { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, var(--yellow), #ffdd66); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  header .brand span { color: var(--yellow); }
+  header .brand small { color: var(--text-dim); font-weight: 400; font-size: 12px; margin-left: 4px; }
+  main { max-width: 1000px; margin: 0 auto; padding: 24px 16px 60px; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+  #loginCard { max-width: 380px; margin: 60px auto 0; text-align: center; }
+  #loginCard .lock-emoji { font-size: 38px; margin-bottom: 6px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 14px; color: var(--yellow); display: flex; align-items: center; gap: 8px; }
+  p.hint { color: var(--text-dim); font-size: 13px; margin: 0 0 18px; line-height: 1.5; }
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel2);
+    color: var(--text);
+    font-size: 15px;
+    margin-bottom: 12px;
+    transition: border-color 0.15s;
+  }
+  input:focus { outline: none; border-color: var(--blue); }
+  button {
+    border: none;
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.15s, background 0.15s;
+  }
+  button:active { transform: scale(0.97); }
+  .btn-primary { background: var(--yellow); color: #121417; }
+  .btn-primary:hover { background: #ffd633; }
+  .btn-secondary { background: var(--panel2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--panel3); }
+  .btn-danger { background: transparent; color: var(--red); border: 1px solid var(--red); }
+  .btn-danger:hover { background: rgba(255,107,107,0.1); }
+  .btn-small { padding: 7px 13px; font-size: 12px; }
+  .btn-full { width: 100%; }
+  button:disabled { opacity: 0.5; cursor: default; transform: none; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+  .stat { background: var(--panel2); border-radius: 12px; padding: 16px 14px; text-align: center; transition: background 0.15s; }
+  .stat:hover { background: var(--panel3); }
+  .stat .num { font-size: 28px; font-weight: 700; color: var(--yellow); line-height: 1.1; }
+  .stat .label { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+  .search-wrap { position: relative; margin-bottom: 4px; }
+  .search-wrap input { padding-left: 38px; margin-bottom: 0; }
+  .search-wrap .icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); opacity: 0.6; font-size: 14px; }
+  .account-list { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .account-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--panel2); border: 1px solid transparent; border-radius: 12px;
+    padding: 12px 14px; cursor: pointer; transition: background 0.15s, border-color 0.15s;
+  }
+  .account-item:hover { background: var(--panel3); border-color: var(--border); }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--blue), #63a4ff);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px; color: white;
+  }
+  .account-info { flex: 1; min-width: 0; }
+  .account-info .email { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .account-info .meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .account-item .chevron { color: var(--text-dim); font-size: 16px; }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; background: var(--panel3); color: var(--text-dim); margin-right: 4px; }
+  .badge.locked { background: rgba(255,107,107,0.15); color: var(--red); }
+  .badge.unlocked { background: rgba(76,175,80,0.15); color: var(--green); }
+  #detailPanel { display: none; }
+  .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .detail-header .avatar { width: 46px; height: 46px; font-size: 18px; }
+  .detail-header .email { font-size: 17px; font-weight: 700; }
+  .detail-header .since { font-size: 12px; color: var(--text-dim); }
+  .child-block { background: var(--panel2); border-radius: 12px; padding: 16px; margin-bottom: 10px; border: 1px solid transparent; }
+  .child-block h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+  .device-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--border); font-size: 13px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .msg { padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 14px; animation: fadeIn 0.2s ease; }
+  .msg.error { background: rgba(255,107,107,0.15); color: var(--red); }
+  .msg.ok { background: rgba(76,175,80,0.15); color: var(--green); }
+  .back-link { color: var(--blue); cursor: pointer; font-size: 13px; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 4px; }
+  .back-link:hover { text-decoration: underline; }
+  .empty-state { text-align: center; padding: 34px 10px; color: var(--text-dim); }
+  .empty-state .big { font-size: 30px; margin-bottom: 8px; }
+  .skeleton { background: linear-gradient(90deg, var(--panel2) 25%, var(--panel3) 37%, var(--panel2) 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; border-radius: 12px; height: 60px; margin-bottom: 8px; }
+  @keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: currentColor; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+    align-items: center; justify-content: center; z-index: 100; padding: 16px;
+    animation: fadeIn 0.15s ease;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 22px; max-width: 380px; width: 100%; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+  .modal h3 { margin: 0 0 8px; font-size: 16px; }
+  .modal p { color: var(--text-dim); font-size: 13px; line-height: 1.5; margin: 0 0 16px; }
+
+  @media (max-width: 560px) {
+    .account-info .email { max-width: 45vw; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><div class="logo">🛡️</div>Rubenpoo <span>Test</span><small>alleen voor beheer</small></div>
+  <button class="btn-secondary btn-small" id="logoutBtn" style="display:none" onclick="logout()">Uitloggen</button>
+</header>
+
+<main>
+
+  <div class="card" id="loginCard">
+    <div class="lock-emoji">🔐</div>
+    <h1>Adminbeheer</h1>
+    <p class="hint">Deze pagina is niet bedoeld voor gewone gebruikers — alleen voor jouzelf om alle accounts te beheren.</p>
+    <div id="loginMsg"></div>
+    <input type="password" id="adminPassword" placeholder="Adminwachtwoord" onkeydown="if(event.key==='Enter') doLogin()" autofocus>
+    <button class="btn-primary btn-full" id="loginBtn" onclick="doLogin()">Inloggen</button>
+  </div>
+
+  <div id="dashboard" style="display:none">
+
+    <div class="card">
+      <h2>📊 Overzicht</h2>
+      <div class="stats-grid" id="statsGrid">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+    </div>
+
+    <div class="card" id="listCard">
+      <h2>👥 Alle accounts</h2>
+      <div id="listMsg"></div>
+      <div class="search-wrap">
+        <span class="icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Zoek op e-mailadres..." oninput="renderAccountList()">
+      </div>
+      <div class="account-list" id="accountsBody">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+    </div>
+
+    <div class="card" id="detailPanel">
+      <span class="back-link" onclick="closeDetail()">&larr; Terug naar overzicht</span>
+      <div class="detail-header">
+        <div class="avatar" id="detailAvatar"></div>
+        <div>
+          <div class="email" id="detailEmail"></div>
+          <div class="since" id="detailSince"></div>
+        </div>
+      </div>
+      <div id="detailMsg"></div>
+      <div id="childrenList" style="margin-top:14px"></div>
+      <div class="row" style="margin-top:18px; border-top:1px solid var(--border); padding-top:16px;">
+        <button class="btn-secondary btn-small" onclick="openResetModal()">🔑 Wachtwoord resetten</button>
+        <button class="btn-danger btn-small" onclick="openDeleteModal()">🗑️ Account verwijderen</button>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- Reset wachtwoord modal -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal">
+    <h3>🔑 Wachtwoord resetten</h3>
+    <p>Nieuw wachtwoord voor <strong id="resetEmailLabel"></strong>. Minstens 8 tekens.</p>
+    <input type="text" id="resetPasswordInput" placeholder="Nieuw wachtwoord">
+    <div class="row">
+      <button class="btn-secondary btn-small" onclick="closeModal('resetModal')">Annuleren</button>
+      <button class="btn-primary btn-small" onclick="doResetPassword()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Verwijder account modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <h3>🗑️ Account verwijderen</h3>
+    <p>Weet je zeker dat je <strong id="deleteEmailLabel"></strong> volledig wilt verwijderen? Dit verwijdert ook alle kinderen, apparaten en gegevens. <strong>Dit kan niet ongedaan gemaakt worden.</strong></p>
+    <div class="row">
+      <button class="btn-secondary btn-small" onclick="closeModal('deleteModal')">Annuleren</button>
+      <button class="btn-danger btn-small" onclick="doDeleteAccount()" style="background:var(--red); color:white; border-color:var(--red)">Ja, verwijderen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const apiUrl = window.location.origin + '/api/admin';
+  let adminToken = localStorage.getItem('adminToken') || null;
+  let currentAccountId = null;
+  let allAccounts = [];
+
+  async function api(path, options = {}) {
+    const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
+    if (adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
+    const resp = await fetch(apiUrl + path, { ...options, headers });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data.error || 'Er ging iets mis');
+    return data;
+  }
+
+  function showMsg(elId, text, isError) {
+    const el = document.getElementById(elId);
+    el.innerHTML = `<div class="msg ${isError ? 'error' : 'ok'}">${isError ? '⚠️' : '✅'} ${text}</div>`;
+    setTimeout(() => { el.innerHTML = ''; }, 4000);
+  }
+
+  function initials(email) {
+    return (email || '?').slice(0, 2).toUpperCase();
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  async function doLogin() {
+    const password = document.getElementById('adminPassword').value;
+    if (!password) return;
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Bezig...';
+    try {
+      const data = await api('/login', { method: 'POST', body: JSON.stringify({ password }) });
+      adminToken = data.token;
+      localStorage.setItem('adminToken', adminToken);
+      enterDashboard();
+    } catch (e) {
+      showMsg('loginMsg', e.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Inloggen';
+    }
+  }
+
+  function logout() {
+    adminToken = null;
+    localStorage.removeItem('adminToken');
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('loginCard').style.display = 'block';
+    document.getElementById('logoutBtn').style.display = 'none';
+  }
+
+  async function enterDashboard() {
+    document.getElementById('loginCard').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('logoutBtn').style.display = 'inline-block';
+    await Promise.all([loadStats(), loadAccounts()]);
+  }
+
+  async function loadStats() {
+    try {
+      const s = await api('/stats');
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat"><div class="num">${s.totalAccounts}</div><div class="label">Accounts</div></div>
+        <div class="stat"><div class="num">${s.totalChildren}</div><div class="label">Kinderen</div></div>
+        <div class="stat"><div class="num">${s.totalDevices}</div><div class="label">Apparaten</div></div>
+        <div class="stat"><div class="num">${s.activeDevices24h}</div><div class="label">Actief (24u)</div></div>
+      `;
+    } catch (e) {
+      if (e.message.includes('Ongeldig') || e.message.includes('adminrechten')) return logout();
+    }
+  }
+
+  async function loadAccounts() {
+    try {
+      allAccounts = await api('/accounts');
+      renderAccountList();
+    } catch (e) {
+      showMsg('listMsg', e.message, true);
+    }
+  }
+
+  function renderAccountList() {
+    const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+    const filtered = q ? allAccounts.filter((a) => a.email.toLowerCase().includes(q)) : allAccounts;
+    const body = document.getElementById('accountsBody');
+
+    if (allAccounts.length === 0) {
+      body.innerHTML = '<div class="empty-state"><div class="big">📭</div>Nog geen accounts geregistreerd.</div>';
+      return;
+    }
+    if (filtered.length === 0) {
+      body.innerHTML = '<div class="empty-state"><div class="big">🔍</div>Geen accounts gevonden voor "' + q + '".</div>';
+      return;
+    }
+
+    body.innerHTML = filtered.map((a) => `
+      <div class="account-item" onclick="openDetail(${a.id})">
+        <div class="avatar">${initials(a.email)}</div>
+        <div class="account-info">
+          <div class="email">${a.email}</div>
+          <div class="meta">Sinds ${new Date(a.createdAt).toLocaleDateString('nl-NL')} · 👶 ${a.childCount} · 📱 ${a.deviceCount}</div>
+        </div>
+        <div class="chevron">›</div>
+      </div>
+    `).join('');
+  }
+
+  async function openDetail(id) {
+    currentAccountId = id;
+    try {
+      const account = await api('/accounts/' + id);
+      document.getElementById('listCard').style.display = 'none';
+      document.getElementById('detailPanel').style.display = 'block';
+      document.getElementById('detailAvatar').textContent = initials(account.email);
+      document.getElementById('detailEmail').textContent = account.email;
+      document.getElementById('detailSince').textContent = 'Account sinds ' + new Date(account.createdAt).toLocaleDateString('nl-NL');
+
+      const today = new Date().toISOString().slice(0, 10);
+      const childrenHtml = account.children.length === 0
+        ? '<div class="empty-state"><div class="big">👶</div>Geen kinderen op dit account.</div>'
+        : account.children.map((c) => {
+            const childLocked = c.rule && c.rule.lockedDate === today;
+            const devicesHtml = c.devices.map((d) => {
+              const devLocked = childLocked || d.lockedDate === today;
+              return `
+                <div class="device-row">
+                  <span>${d.platform === 'android' ? '📱' : '💻'} ${d.name} ${devLocked ? '<span class="badge locked">vergrendeld</span>' : '<span class="badge unlocked">actief</span>'}</span>
+                  <button class="btn-secondary btn-small" onclick="toggleDeviceLock(${d.id}, ${!devLocked})">${devLocked ? 'Ontgrendel' : 'Vergrendel'}</button>
+                </div>
+              `;
+            }).join('') || '<p class="hint" style="margin:8px 0 0">Geen apparaten gekoppeld.</p>';
+            return `
+              <div class="child-block">
+                <h3>🧒 ${c.name} ${childLocked ? '<span class="badge locked">alles vergrendeld</span>' : ''}</h3>
+                <p class="hint" style="margin:0 0 4px">Limiet: ${c.rule ? c.rule.dailyLimitMinutes : 60} min/dag</p>
+                ${devicesHtml}
+                <div class="row">
+                  <button class="btn-secondary btn-small" onclick="toggleChildLock(${c.id}, ${!childLocked})">${childLocked ? '🔓 Alles ontgrendelen' : '🔒 Alles vergrendelen'}</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+      document.getElementById('childrenList').innerHTML = childrenHtml;
+    } catch (e) {
+      showMsg('listMsg', e.message, true);
+    }
+  }
+
+  function closeDetail() {
+    document.getElementById('detailPanel').style.display = 'none';
+    document.getElementById('listCard').style.display = 'block';
+    loadAccounts();
+    loadStats();
+  }
+
+  async function toggleChildLock(childId, locked) {
+    try {
+      await api(`/children/${childId}/lock`, { method: 'PUT', body: JSON.stringify({ locked }) });
+      openDetail(currentAccountId);
+    } catch (e) {
+      showMsg('detailMsg', e.message, true);
+    }
+  }
+
+  async function toggleDeviceLock(deviceId, locked) {
+    try {
+      await api(`/devices/${deviceId}/lock`, { method: 'PUT', body: JSON.stringify({ locked }) });
+      openDetail(currentAccountId);
+    } catch (e) {
+      showMsg('detailMsg', e.message, true);
+    }
+  }
+
+  function openResetModal() {
+    document.getElementById('resetEmailLabel').textContent = document.getElementById('detailEmail').textContent;
+    document.getElementById('resetPasswordInput').value = '';
+    document.getElementById('resetModal').classList.add('open');
+  }
+
+  async function doResetPassword() {
+    const newPassword = document.getElementById('resetPasswordInput').value;
+    if (!newPassword || newPassword.length < 8) {
+      alert('Wachtwoord moet minstens 8 tekens zijn.');
+      return;
+    }
+    try {
+      await api(`/accounts/${currentAccountId}/password`, { method: 'PUT', body: JSON.stringify({ newPassword }) });
+      closeModal('resetModal');
+      showMsg('detailMsg', 'Wachtwoord aangepast.', false);
+    } catch (e) {
+      closeModal('resetModal');
+      showMsg('detailMsg', e.message, true);
+    }
+  }
+
+  function openDeleteModal() {
+    document.getElementById('deleteEmailLabel').textContent = document.getElementById('detailEmail').textContent;
+    document.getElementById('deleteModal').classList.add('open');
+  }
+
+  async function doDeleteAccount() {
+    closeModal('deleteModal');
+    try {
+      await api(`/accounts/${currentAccountId}`, { method: 'DELETE' });
+      closeDetail();
+    } catch (e) {
+      showMsg('listMsg', e.message, true);
+    }
+  }
+
+  if (adminToken) enterDashboard();
+</script>
+
+</body>
+</html>
