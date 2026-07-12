@@ -90,4 +90,4 @@ async function requireDeviceAuth(req, res, next) {
   }
 }
 
-module.exports = { requireAuth, requireDeviceAuth, rateLimitAuth, JWT_SECRET };
+module.exports = { requireAuth, requireDeviceAuth, requireAdmin, rateLimitAuth, JWT_SECRET };
